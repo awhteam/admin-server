@@ -12,6 +12,7 @@ from database.models import AnimeV2
 from database.database import SessionLocal
 from datetime import datetime
 from sqlalchemy.orm.attributes import flag_modified
+import traceback
 
 
 @Bot.on_message(filters.command(["start"]))
@@ -27,6 +28,19 @@ async def get_chatid(bot: Bot, message: Message):
 @Bot.on_message(filters.command(["msg_id"]))
 async def get_message_id(bot: Bot, message: Message):
     await message.reply(text=message.reply_to_message.message_id, quote=True)
+
+@Bot.on_message(filters.command(["update_post"]))
+async def manual_update(bot: Bot, message: Message):
+    try:
+        cmd=message.command[1:]
+        tg_post = regex.search(
+            "https://t.me/animworlddl/([0-9]+)", "".join(cmd))
+        tg_post= int(tg_post.groups()[0] if tg_post else cmd[0])
+        msg= await bot.get_messages("animworlddl",tg_post)
+        await channel_hook(bot,msg)
+        await message.reply("updated successfully")
+    except Exception as e:
+        await bot.send_message(Config.LOGGER_GP, traceback.format_exc())
 
 
 @Bot.on_message(filters.chat(["animworlddl"]))
@@ -100,15 +114,18 @@ async def update_files(mal_id,message:Message):
             epi := regex.search("[-Ee ]([0-9]{2,4})[ \[\(.]", f['filename']))}
 
     # find new one
-    flag_modified(anime, "files")
     new_episodes={}
-    for r in ["480", "720", "1080"]:
-        quality = f"{r}p{is_bluray}"
-        for k, f in files2[quality].items():
-            if not k in anime.files[quality].keys() or anime.files[quality][k] != f:
-                print(k)
-                anime.files[quality][k] = f
-                new_episodes[ quality]=new_episodes.get(quality,[])+[k]
+    if(anime.files):
+        flag_modified(anime, "files")
+        for r in ["480", "720", "1080"]:
+            quality = f"{r}p{is_bluray}"
+            for k, f in files2[quality].items():
+                if not k in anime.files[quality].keys() or anime.files[quality][k] != f:
+                    print(k)
+                    anime.files[quality][k] = f
+                    new_episodes[ quality]=new_episodes.get(quality,[])+[k]
+    else:
+        anime.files=files2
 
     nw_msg = f"**NEW UPDATE**\nAnime: {anime.title.romaji} {anime.year}\n"
     anime.tg_main_post=message.message_id

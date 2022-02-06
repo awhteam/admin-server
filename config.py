@@ -6,7 +6,7 @@ class Config(object):
     os.environ['BOT_TOKEN']="***REMOVED***"
     os.environ['APP_ID']="***REMOVED***"
     os.environ['API_HASH']="***REMOVED***"
-    os.environ['LOGGER_GP']="-486977904"
+    os.environ['LOGGER_GP']="-1001199262026"
     os.environ['MAL_CLIENT_ID']="***REMOVED***"
     os.environ['DATABASE_URL']='***REMOVED***'
     MAL_CLIENT_ID = os.environ.get('MAL_CLIENT_ID')
