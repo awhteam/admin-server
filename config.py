@@ -1,6 +1,9 @@
 import os
 import pyrogram
-
+from gql import Client
+from gql.transport.aiohttp import AIOHTTPTransport
+from github import Github
+import pymongo
 
 class Config(object):
     os.environ['BOT_TOKEN']="***REMOVED***"
@@ -30,3 +33,7 @@ class Config(object):
         api_hash=API_HASH,
         plugins=dict(root="plugins")
     )
+    ANILIST_CLIENT = Client(transport=AIOHTTPTransport(url="https://graphql.anilist.co"), fetch_schema_from_transport=True)
+    GITHUB_MEDIA = Github("***REMOVED***").get_repo("awhteam/AW_DL-Media")
+    SEARCH_DB= pymongo.MongoClient("***REMOVED***", maxPoolSize=100).get_database().search
+    # SEARCH_DB= None

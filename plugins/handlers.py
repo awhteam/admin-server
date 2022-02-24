@@ -19,6 +19,12 @@ import traceback
 async def start(bot: Bot, message: Message):
     await message.reply(text=Response.START, quote=True)
 
+@Bot.on_message(filters.command(["start2"]))
+async def start(bot: Bot, message: Message):
+    print(message.edit_date)
+    print(message.reactions)
+    await message.reply(text=Response.START, quote=True)
+
 
 @Bot.on_message(filters.command(["chat_id"]))
 async def get_chatid(bot: Bot, message: Message):
@@ -43,7 +49,7 @@ async def manual_update(bot: Bot, message: Message):
         await bot.send_message(Config.LOGGER_GP, traceback.format_exc())
 
 
-@Bot.on_message(filters.chat(["animworlddl"]))
+# @Bot.on_message(filters.chat(["animworlddl"]))
 async def channel_hook(bot: Bot, message: Message):
     if(not message.caption):
         return
@@ -129,7 +135,6 @@ async def update_files(mal_id,message:Message):
 
     nw_msg = f"**NEW UPDATE**\nAnime: {anime.title.romaji} {anime.year}\n"
     anime.tg_main_post=message.message_id
-    print(f"message date {message.date}")
     anime.tg_post_date= datetime.fromtimestamp(message.date)
     if(message.edit_date):
         anime.tg_post_edit_date= datetime.fromtimestamp(message.edit_date)
@@ -145,5 +150,5 @@ async def update_files(mal_id,message:Message):
         Config.UPDATES_CHANNEL, nw_msg,
         reply_markup=InlineKeyboardMarkup(
             [
-                 [InlineKeyboardButton(f"view anime page", url=f"https://awdl.ml/anime/{mal_id}")]
+                 [InlineKeyboardButton(f"view anime page", url=f"https://awdl2.ml/anime/{mal_id}")]
             ]))
