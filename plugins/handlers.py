@@ -17,13 +17,7 @@ import traceback
 
 @Bot.on_message(filters.command(["start"]))
 async def start(bot: Bot, message: Message):
-    await message.reply(text=Response.START, quote=True)
-
-@Bot.on_message(filters.command(["start2"]))
-async def start(bot: Bot, message: Message):
-    print(message.edit_date)
-    print(message.reactions)
-    await message.reply(text=Response.START, quote=True)
+    await message.reply(text="بات زندس", quote=True)
 
 
 @Bot.on_message(filters.command(["chat_id"]))
