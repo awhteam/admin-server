@@ -33,7 +33,14 @@ class Config(object):
         api_hash=API_HASH,
         plugins=dict(root="plugins")
     )
+
+    vnc_mod_bot= pyrogram.Client(
+        "vnc",
+        bot_token="***REMOVED***",
+        api_id=APP_ID,
+        api_hash=API_HASH,
+        plugins=dict(root="vnc_mod")
+    )
     ANILIST_CLIENT = Client(transport=AIOHTTPTransport(url="https://graphql.anilist.co"), fetch_schema_from_transport=True)
     GITHUB_MEDIA = Github("***REMOVED***").get_repo("awhteam/AW_DL-Media")
     SEARCH_DB= pymongo.MongoClient("***REMOVED***", maxPoolSize=100).get_database().search
-    # SEARCH_DB= None

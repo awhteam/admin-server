@@ -43,7 +43,7 @@ async def manual_update(bot: Bot, message: Message):
         await bot.send_message(Config.LOGGER_GP, traceback.format_exc())
 
 
-# @Bot.on_message(filters.chat(["animworlddl"]))
+@Bot.on_message(filters.chat(["animworlddl"]))
 async def channel_hook(bot: Bot, message: Message):
     if(not message.caption):
         return

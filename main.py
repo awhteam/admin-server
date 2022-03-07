@@ -74,7 +74,8 @@ if __name__ == "__main__":
     # app.run(port=7000)
     threading.Thread(target=app.run, args=(
         "0.0.0.0", Config.PORT), daemon=True).start()
-
+    Config.vnc_mod_bot.start()
     Config.bot.start()
     idle()
     Config.bot.stop()
+    Config.vnc_mod_bot.stop()
