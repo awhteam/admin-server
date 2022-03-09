@@ -123,7 +123,13 @@ class AnimeV2(Base):
 
 class AnimeCollection(Base):
     __tablename__ = 'anime_collections'
-
     id = Column(Integer, primary_key=True, autoincrement=True)
     tg_main_post = Column(Integer, unique=True)
     animes = relationship("AnimeV2")
+
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String,unique=True)
+    password = Column(String)
