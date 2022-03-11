@@ -38,13 +38,12 @@ def token_required(f):
             token = request.headers['x-access-tokens']
 
         if not token:
-            return jsonify({'message': 'a valid token is missing'})
-        
+            return make_response('could not verify', 401, {'message': 'a valid token is missing'})    
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
             current_user =  app.session.query(models.User).filter_by(username=data['username']).first()
         except:
-            return jsonify({'message': 'token is invalid'})
+            return make_response('could not verify', 401, {'message': 'token is invalid'})    
 
         return f(current_user, *args, **kwargs)
     return decorator
@@ -70,7 +69,7 @@ def login_user():
      
     if check_password_hash(user.password, auth.password):
 
-        token = jwt.encode({'username' : user.username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=45)}, app.config['SECRET_KEY'], "HS256")
+        token = jwt.encode({'username' : user.username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=1)}, app.config['SECRET_KEY'], "HS256")
         return jsonify({'token' : token}) 
 
     return make_response('could not verify',  401, {'Authentication': '"login required"'})
