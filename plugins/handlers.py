@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-from html import entities
 from config import Config
 from plugins.responses import Response
 from pyrogram import filters
@@ -13,6 +11,8 @@ from database.database import SessionLocal
 from datetime import datetime
 from sqlalchemy.orm.attributes import flag_modified
 import traceback
+from services.anime import update_files
+
 
 
 @Bot.on_message(filters.command(["start"]))
@@ -89,60 +89,3 @@ def extract_name(text):
     print(f"{name} {year}")
     return (name, year)
 
-
-
-async def update_files(mal_id,message:Message):
-    db = SessionLocal()
-    # get anime files
-    anime = db.query(AnimeV2).filter_by(mal_id=mal_id).one_or_none()
-    if(not anime):return
-
-    post_text = str(message.caption)
-    post_urls = [x.url for x in message.caption_entities if x.url]
-    # get post files
-    fileIds = [int(u.split("/")[-1]) for u in post_urls if 'AWHTarchive' in u]
-    files_msg = await Config.bot.get_messages('AWHTarchive', fileIds)
-    files = [{"msg_id": f.message_id, "filename": f.document.file_name, "filesize": round(
-        f.document.file_size/(1024*1024), 2), } for f in files_msg if f.document]
-    print(files)
-    is_bluray = ""
-    if("#Bluray" in post_text or "#BluRay" in post_text):
-        is_bluray = " Bluray"
-    files2 = {}
-    for r in ["480", "720", "1080"]:
-        files2[f"{r}p{is_bluray}"] = {epi.groups(0)[0]: f for f in files if r in f['filename'] and (
-            epi := regex.search("[-Ee ]([0-9]{2,4})[ \[\(.]", f['filename']))}
-
-    # find new one
-    new_episodes={}
-    if(anime.files):
-        flag_modified(anime, "files")
-        for r in ["480", "720", "1080"]:
-            quality = f"{r}p{is_bluray}"
-            for k, f in files2[quality].items():
-                if not k in anime.files[quality].keys() or anime.files[quality][k] != f:
-                    print(k)
-                    anime.files[quality][k] = f
-                    new_episodes[ quality]=new_episodes.get(quality,[])+[k]
-    else:
-        anime.files=files2
-
-    nw_msg = f"**NEW UPDATE**\nAnime: {anime.title.romaji} {anime.year}\n"
-    anime.tg_main_post=message.message_id
-    anime.tg_post_date= datetime.fromtimestamp(message.date)
-    if(message.edit_date):
-        anime.tg_post_edit_date= datetime.fromtimestamp(message.edit_date)
-
-    db.commit()
-    db.close()
-    print(new_episodes)
-    for r,val in new_episodes.items():
-        nw_msg+=f"کیفیت {r}‏: {','.join(val)}‏\n"
-
-    nw_msg+="\n-------\n"
-    await Config.bot.send_message(
-        Config.UPDATES_CHANNEL, nw_msg,
-        reply_markup=InlineKeyboardMarkup(
-            [
-                 [InlineKeyboardButton(f"view anime page", url=f"https://awdl2.ml/anime/{mal_id}")]
-            ]))
