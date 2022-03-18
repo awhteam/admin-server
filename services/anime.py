@@ -111,7 +111,7 @@ async def update_files(mal_id, message: Message):
     files2 = {}
     for r in ["480", "720", "1080"]:
         files2[f"{r}p{is_bluray}"] = {epi.groups(0)[0]: f for f in files if r in f['filename'] and (
-            epi := regex.search("[-Ee ]([0-9]{2,4})[ \[\(.]", f['filename']))}
+            epi := regex.search("\].*[a-zA-Z].*[-Ee ]([0-9]{2,4})[ \[\(.]", f['filename']))}
 
     # find new one
     new_episodes = {}

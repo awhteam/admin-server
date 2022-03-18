@@ -598,4 +598,4 @@ FodyWeavers.xsd
 
 venv
 *.session
-test.py
+test*
