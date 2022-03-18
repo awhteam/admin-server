@@ -131,8 +131,10 @@ async def update_files(mal_id, message: Message):
     anime.tg_post_date = datetime.fromtimestamp(message.date)
     if(message.edit_date):
         anime.tg_post_edit_date = datetime.fromtimestamp(message.edit_date)
-
-    app.session.commit()
+    try:
+        app.session.commit()
+    except:
+        app.session.rollback()
     app.session.close()
     print(new_episodes)
     for r, val in new_episodes.items():
