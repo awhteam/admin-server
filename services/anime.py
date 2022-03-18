@@ -97,9 +97,10 @@ async def update_files(mal_id, message: Message):
         return
 
     post_text = str(message.caption)
-    post_urls = [x.url for x in message.caption_entities if x.url]
+    post_urls = "".join([x.url for x in message.caption_entities if x.url])
     # get post files
-    fileIds = [int(u.split("/")[-1]) for u in post_urls if 'AWHTarchive' in u]
+
+    fileIds = list(map(int,regex.findall("t.me/AWHTarchive/([0-9]{1,})",post_urls)))   
     files_msg = await Config.bot.get_messages('AWHTarchive', fileIds)
     files = [{"msg_id": f.message_id, "filename": f.document.file_name, "filesize": round(
         f.document.file_size/(1024*1024), 2), } for f in files_msg if f.document]
