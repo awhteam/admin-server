@@ -29,6 +29,24 @@ async def get_chatid(bot: Bot, message: Message):
 async def get_message_id(bot: Bot, message: Message):
     await message.reply(text=message.reply_to_message.message_id, quote=True)
 
+
+@Bot.on_message(filters.command(["batch_update"]))
+async def manual_batch_update(bot: Bot, message: Message):
+    try:
+        cmd=message.command[1:]
+        tg_post = regex.search(
+            "https://t.me/animworlddl/([0-9]+)", "".join(cmd))
+        tg_post= int(tg_post.groups()[0] if tg_post else cmd[0])
+        messages= await bot.get_messages("animworlddl",range(tg_post,tg_post+200))
+        for msg in messages:
+            await channel_hook(bot,msg)
+        await message.reply("updated successfully")
+    except Exception as e:
+        await bot.send_message(Config.LOGGER_GP, traceback.format_exc())
+
+
+
+
 @Bot.on_message(filters.command(["update_post"]))
 async def manual_update(bot: Bot, message: Message):
     try:
@@ -45,32 +63,34 @@ async def manual_update(bot: Bot, message: Message):
 
 @Bot.on_message(filters.chat(["animworlddl"]) & ~filters.edited)
 async def channel_hook(bot: Bot, message: Message):
-    if(not message.caption):
-        return
-    post_text = str(message.caption)
-    post_urls = [x.url for x in message.caption_entities if x.url]
-    malId = regex.search(
-        "https://myanimelist.net/anime/([0-9]+)/", "\n".join(post_urls))
-    if(malId):
-        malId = int(malId.groups()[0])
-        await update_files(malId,message)
-    else:
-        name, year = extract_name(post_text)
-        name_q = name.split(" ")[0]
-        query = AnimeV2.query.filter(AnimeV2.title.english.ilike(
-            f'%{name_q}%') | AnimeV2.title.romaji.ilike(f'%{name_q}%'), AnimeV2.year == year)
-        animeHa = query.all()
-        print(animeHa)
-        nw_msg = f"**NEW UPDATE**\nAnime: {name} {year}\nTelegram post: https://t.me/{message.chat.username}/{message.message_id}"
-        await bot.send_message(
-            Config.UPDATES_CHANNEL, nw_msg,
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton(
-                        f"{anime.title.romaji} {anime.year}", callback_data=f"new_update {anime.mal_id}")]
-                    for anime in animeHa
-                ]))
-
+    try:
+        if(not message.caption):
+            return
+        post_text = str(message.caption)
+        post_urls = [x.url for x in message.caption_entities if x.url]
+        malId = regex.search(
+            "https://myanimelist.net/anime/([0-9]+)/", "\n".join(post_urls))
+        if(malId):
+            malId = int(malId.groups()[0])
+            await update_files(malId,message)
+        else:
+            name, year = extract_name(post_text)
+            name_q = name.split(" ")[0]
+            query = AnimeV2.query.filter(AnimeV2.title.english.ilike(
+                f'%{name_q}%') | AnimeV2.title.romaji.ilike(f'%{name_q}%'), AnimeV2.year == year)
+            animeHa = query.all()
+            print(animeHa)
+            nw_msg = f"**NEW UPDATE**\nAnime: {name} {year}\nTelegram post: https://t.me/{message.chat.username}/{message.message_id}"
+            await bot.send_message(
+                Config.UPDATES_CHANNEL, nw_msg,
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [InlineKeyboardButton(
+                            f"{anime.title.romaji} {anime.year}", callback_data=f"new_update {anime.mal_id}")]
+                        for anime in animeHa
+                    ]))
+    except Exception as e:
+        await bot.send_message(Config.LOGGER_GP, traceback.format_exc())
 
 @Bot.on_callback_query(filters.regex("new_update"))
 async def answer_new_update_queries(bot: Bot, query: CallbackQuery):
