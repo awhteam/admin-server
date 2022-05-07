@@ -74,3 +74,4 @@ Werkzeug==2.0.2
 wrapt==1.13.3
 yarl==1.7.2
 zope.interface==5.4.0
+gdown
