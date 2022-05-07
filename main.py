@@ -10,7 +10,6 @@ import datetime
 from database.models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
-from functools import wraps
 app = Flask(__name__)
 models.Base.metadata.create_all(bind=engine)
 CORS(app)
@@ -64,8 +63,10 @@ if __name__ == "__main__":
     # app.run(port=7000)
     threading.Thread(target=app.run, args=(
         "0.0.0.0", Config.PORT), daemon=True).start()
+    Config.sxf_mod_bot.start()
     Config.vnc_mod_bot.start()
     Config.bot.start()
     idle()
     Config.bot.stop()
     Config.vnc_mod_bot.stop()
+    Config.sxf_mod_bot.stop()
