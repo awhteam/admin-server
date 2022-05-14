@@ -25,40 +25,55 @@ async def watch_command(bot: Bot, message: Message):
 
 
 @Bot.on_message(filters.command(["gdown"]))
-async def upload_command(bot: Bot, message: Message):
+async def gdown_command(bot: Bot, message: Message):
     unique_id = f"{message.chat.id}_{message.message_id}"
-    folder=f"upload_{unique_id}"
+    folder = f"gdown_{unique_id}"
     os.system(f"mkdir {folder}")
-    cmd=" ".join(message.command[1:])
-    toks= cmd.split('|')
+    cmd = " ".join(message.command[1:])
+    toks = cmd.split('|')
     url = toks[0].strip()
     filename = toks[1].strip()
-    gid=None
-    if("/file/d/" in url):gid=url.split("/file/d/")[1].split("/")[0]
-    elif("id=" in url):gid=url.split("id=")[1].split("/")[0].split("&")[0]
+    gid = None
+    if("/file/d/" in url):
+        gid = url.split("/file/d/")[1].split("/")[0]
+    elif("id=" in url):
+        gid = url.split("id=")[1].split("/")[0].split("&")[0]
     os.system(f'cd {folder} && gdown --id "{gid}"')
     for file in glob(f"{folder}/*.mkv"):
         os.system(f'mv "{file}" "{filename}"')
         await message.reply_document(filename)
 
 
+@Bot.on_message(filters.command(["rename"]))
+async def rename_command(bot: Bot, message: Message):
+    unique_id = f"{message.chat.id}_{message.message_id}"
+    folder = f"rename_{unique_id}"
+    os.system(f"mkdir {folder}")
+    new_filename = " ".join(message.command[1:]).strip()
+    filename, msg2 = await download_file(message.reply_to_message, message)
+    os.system(
+        f'mv "{filename}" "{new_filename}" && mv "{new_filename}" {folder} ')
+    await message.reply_document(f"{folder}/{new_filename}")
+
 
 file_names = {
     "WebDL": "[SpyxFamilyChannel] Spy x Family - 0{0} ({q} web-dl)"
 }
+
+
 @Bot.on_message(filters.command(["dl"]))
 async def dl_command(bot: Bot, message: Message):
-    toks= message.command[1].split("/")
+    toks = message.command[1].split("/")
     chat = toks[-2]
     postId = int(toks[-1])
     msg = await bot.get_messages(chat, postId)
-    filename, msg2 = await download_file(msg,message)
-    anime_name= filename.split("]")[1].strip()
-    anime_name= anime_name.replace("[","(").replace("]",")")
+    filename, msg2 = await download_file(msg, message)
+    anime_name = filename.split("]")[1].strip()
+    anime_name = anime_name.replace("[", "(").replace("]", ")")
     await message.reply(text=f"Got it {filename}", quote=True)
-    ver=" "
+    ver = " "
     if("WebDL" in chat):
-        ver=" web-dl"
+        ver = " web-dl"
     new_filename = f'[SpyxFamilyChannel] {anime_name.split(")")[0]}{ver}).mkv'
     await message.reply(text=f"Changing it to {new_filename}", quote=True)
     os.system(f'mv "{filename}" "{new_filename}"')
