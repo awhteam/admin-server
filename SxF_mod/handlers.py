@@ -81,11 +81,23 @@ async def dl_command(bot: Bot, message: Message):
     await msg2.delete()
 
 
+
+
+qualities={
+    "Airing_Anime_480p": "480p x264",
+    "Airing_Anime_1080p_x265":"1080p x265"
+}
 # & filters.regex(r"spy")
-@Bot.on_message(filters.chat(["Latest_Ongoing_Airing_Anime"]))
+@Bot.on_message(filters.chat(list(qualities.keys()))& filters.regex(r"spy") & filters.document)
 async def airing_anime_hook(bot: Bot, message: Message):
-    post_text = str(message.caption)
-    post_urls = "".join([x.url for x in message.caption_entities if x.url])
+    filename=message.document.file_name
+    epi = regex.search("\].*[a-zA-Z].*[-Ee ]([0-9]{2,4})[ \[\(.]", filename)
+    new_filename = f'[SpyxFamilyChannel] Spy x Family - {epi} ({qualities[message.chat.username]}).mkv'
+    msg=await bot.send(chat="killingDarkness",text=f"Got it {filename}")
+    filename, msg2 = await download_file(message, msg)
+    os.system(f'mv "{filename}" "{new_filename}"')
+    await msg.reply_document(f"{new_filename}")
+    await msg2.delete()
 
 #     [ Photo ]
 # 📺 Spy x Family
