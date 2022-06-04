@@ -83,43 +83,18 @@ async def dl_command(bot: Bot, message: Message):
 
 
 
-qualities={
-    "Airing_Anime_480p": "480p x264",
-    "Airing_Anime_1080p_x265":"1080p x265"
-}
-# & filters.regex(r"spy")
-@Bot.on_message(filters.chat(list(qualities.keys()))& filters.regex(r"spy") & filters.document)
+@Bot.on_message(filters.chat([-1001225416353]) & filters.document,group=1)
 async def airing_anime_hook(bot: Bot, message: Message):
     filename=message.document.file_name
-    epi = regex.search("\].*[a-zA-Z].*[-Ee ]([0-9]{2,4})[ \[\(.]", filename)
-    new_filename = f'[SpyxFamilyChannel] Spy x Family - {epi} ({qualities[message.chat.username]}).mkv'
-    msg=await bot.send(chat="killingDarkness",text=f"Got it {filename}")
+    epi = regex.search("\].*[a-zA-Z].*[-Ee ]([0-9]{2,4})[ \[\(.]", filename).groups()[0]
+    q= filename.split("(")[-1].split(")")[0]
+    new_filename = f'[SpyxFamilyChannel] Spy x Family - {epi} ({q}).mkv'
+    msg= await message.reply(f"Got it {filename} changing to {new_filename}")
+    cap=f"[[SpyxFamilyChannel](https://t.me/SpyXFamilyChannel)] Spy x Family - {epi} ({q})\n#Ep{epi} #Season01 #{q.replace(' ',' #')}"
     filename, msg2 = await download_file(message, msg)
     os.system(f'mv "{filename}" "{new_filename}"')
-    await msg.reply_document(f"{new_filename}")
+    await msg.reply_document(f"{new_filename}",caption=cap)
     await msg2.delete()
+    await msg.delete()
 
-#     [ Photo ]
-# 📺 Spy x Family
-# 🗓 Episode 04
-# 📍 English Sub
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━
-# ⚙️ Web-DL (Source)
-#      📥 480p/720p/1080p  ➙ DOWNLOAD (https://t.me/Airing_Anime_WebDL/4786)
-
-# ⚙️ x264 Encodes (SOFT-SUB)
-#      📥 480p   ➙ DOWNLOAD (https://t.me/Airing_Anime_480p/333)
-#      📥 720p   ➙ DOWNLOAD (https://t.me/Airing_Anime_720p/239)
-#      📥 1080p ➙ DOWNLOAD (https://t.me/Airing_Anime_1080p/242)
-
-# ⚙️ x265 HEVC Encodes (SOFT-SUB)
-#      📥 480p   ➙ DOWNLOAD (https://t.me/Airing_Anime_480p_x265/315)
-#      📥 720p   ➙ DOWNLOAD (https://t.me/Airing_Anime_720p_x265/266)
-#      📥 1080p ➙ DOWNLOAD (https://t.me/Airing_Anime_1080p_x265/673)
-
-# ⚙️ TG - Stream (HARD-SUB)
-#      🖥  ➙ DOWNLOAD/STREAM (https://t.me/AutoAnime/2474)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━
-# (Encoded Files will be uploaded as soon as it finishes encoding)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━
-# 📡 @Latest_Ongoing_Airing_Anime
+    
