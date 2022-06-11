@@ -85,11 +85,12 @@ async def dl_command(bot: Bot, message: Message):
 
 @Bot.on_message(filters.chat([-1001225416353]) & filters.document,group=1)
 async def airing_anime_hook(bot: Bot, message: Message):
-    filename=message.document.file_name
-    epi = regex.search("\].*[a-zA-Z].*[-Ee ]([0-9]{2,4})[ \[\(.]", filename).groups()[0]
-    q= filename.split("(")[-1].split(")")[0]
+    cap=message.caption
+    toks=cap.split("(")[0].strip().split("-")
+    epi=toks[1].strip()
+    q= regex.search("\(([0-9xp ]*)[^)]*\)",cap).groups()[0]
     new_filename = f'[SpyxFamilyChannel] Spy x Family - {epi} ({q}).mkv'
-    msg= await message.reply(f"Got it {filename} changing to {new_filename}")
+    msg= await message.reply(f"Changing to {new_filename}")
     cap=f"[[SpyxFamilyChannel](https://t.me/SpyXFamilyChannel)] Spy x Family - {epi} ({q})\n#Ep{epi} #Season01 #{q.replace(' ',' #')}"
     filename, msg2 = await download_file(message, msg)
     os.system(f'mv "{filename}" "{new_filename}"')
