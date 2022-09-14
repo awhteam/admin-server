@@ -16,7 +16,7 @@ CORS(app)
 app.session = scoped_session(
     SessionLocal, scopefunc=_app_ctx_stack.__ident_func__)
 Base.query = app.session.query_property()
-app.config['SECRET_KEY']='***REMOVED***'
+app.config['SECRET_KEY']=Config.SECRET_KEY
 
 # import apis
 import api.anime
